@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import List
 
+import pkg_resources
 import numpy as np
 from gym.utils import seeding
 
 
 class InstanceGenerator(ABC):
     """
-    Base class for random instance generators.
+    Base class for instance generators.
     :param width: (int) Width of the instance.
     :param height: (int) Height of the instance.
     """
@@ -44,7 +45,8 @@ class InstanceReader(InstanceGenerator):
 
     def generate(self, success=True) -> np.ndarray:
         if not self._last:
-            self._last = np.loadtxt(self.path).astype(np.uint8)
+            path = pkg_resources.resource_filename("gym_maze", self.path)
+            self._last = np.loadtxt(path).astype(np.uint8)
             self.height, self.width = self._last.shape
         return self._last
 
@@ -65,4 +67,5 @@ class RandomInstanceReader(InstanceGenerator):
 
     def _read_instances(self, paths: List[str]):
         for path in paths:
-            self.instances.append(np.loadtxt(path))
+            p = pkg_resources.resource_filename("gym_maze", path)
+            self.instances.append(np.loadtxt(p))
