@@ -49,6 +49,7 @@ class MazeBase(gym.Env):
         instance_kwargs: Optional[Dict] = None,
         step_type: str = "simple",
         step_kwargs: Optional[Dict] = None,
+        multichannel_obs: bool = False,
     ) -> None:
 
         self.np_random = None
@@ -57,6 +58,7 @@ class MazeBase(gym.Env):
         self.goal_range = goal_range
         self.locations = None  # Nonzero freespace - not particle locations!
         self.done = False
+        self.multichannel_obs = multichannel_obs
 
         if allow_diagonal:
             # self.action_map = {0: (1, 0), 1: (1, 1), 2: (0, 1), 3: (-1, 1), # {S, SE, E, NE, N, NW, W, SW}
@@ -105,8 +107,11 @@ class MazeBase(gym.Env):
         self.goal_proposition = goal
         self._load_map(goal)
 
+        self.n_channels = 1
+        if self.multichannel_obs:
+            self.n_channels = 3 if self.randomize_goal else 2
         self.observation_space = gym.spaces.Box(
-            low=0, high=255, shape=(*self.maze.shape, 1), dtype=np.uint8
+            low=0, high=255, shape=(*self.maze.shape, self.n_channels), dtype=np.uint8
         )
 
         self.particle_locations = np.array([])
@@ -264,7 +269,7 @@ class MazeBase(gym.Env):
 
         return [seed]
 
-    def _generate_observation(self):
+    def _generate_single_channel_obs(self):
         observation = self.maze * 255
         observation[
             self.particle_locations[:, 0], self.particle_locations[:, 1]
@@ -276,6 +281,30 @@ class MazeBase(gym.Env):
             ] = GOAL_MARKER
 
         return observation[:, :, np.newaxis]  # Convert to single channel image
+
+    def _generate_multi_channel_obs(self):
+        observation = np.zeros((*self.maze.shape, self.n_channels))
+        observation[:, :, 0] = self.maze * 255
+        observation[
+            self.particle_locations[:, 0], self.particle_locations[:, 1], 1
+        ] = 255
+        if self.randomize_goal:
+            circle = np.zeros(self.maze.shape)
+            cv2.circle(circle, tuple(self.goal), self.goal_range, (255))
+            observation[:, :, 2] = circle
+            observation[
+                self.goal[1] - 1 : self.goal[1] + 1,
+                self.goal[0] - 1 : self.goal[0] + 1,
+                2,
+            ] = 255
+
+        return observation  # Convert to single channel image
+
+    def _generate_observation(self):
+        if self.multichannel_obs:
+            return self._generate_multi_channel_obs()
+        else:
+            return self._generate_single_channel_obs()
 
     def _update_locations(self, new_locations):
         """
