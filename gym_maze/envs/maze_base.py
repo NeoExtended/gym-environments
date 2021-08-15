@@ -270,7 +270,8 @@ class MazeBase(gym.Env):
         return [seed]
 
     def _generate_single_channel_obs(self):
-        observation = self.maze * 255
+        # observation = self.maze * 255
+        observation = np.zeros(self.maze.shape)
         observation[
             self.particle_locations[:, 0], self.particle_locations[:, 1]
         ] = PARTICLE_MARKER
