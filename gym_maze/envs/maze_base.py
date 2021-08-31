@@ -15,8 +15,8 @@ from gym_maze.envs.step_modifier import (
     PhysicalMovementModifier,
 )
 
-PARTICLE_MARKER = 150
-GOAL_MARKER = 200
+PARTICLE_MARKER = 255
+GOAL_MARKER = 255
 BACKGROUND_COLOR = (15, 30, 65)
 MAZE_COLOR = (90, 150, 190)
 PARTICLE_COLOR = (250, 250, 100)
