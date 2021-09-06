@@ -250,6 +250,7 @@ class MazeBase(gym.Env):
             self.particle_locations[:, 0], self.particle_locations[:, 1]
         ] = PARTICLE_COLOR
 
+        rgb_image = np.ascontiguousarray(rgb_image, dtype=np.uint8)
         cv2.circle(
             rgb_image, tuple(self.goal), self.goal_range, (255, 0, 0), thickness=1
         )
