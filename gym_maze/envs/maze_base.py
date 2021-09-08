@@ -105,7 +105,10 @@ class MazeBase(gym.Env):
 
         self.map_index = -1
         self.goal_proposition = goal
-        self._load_map(goal)
+        if callable(goal):
+            self._load_map(None)
+        else:
+            self._load_map(goal)
 
         self.n_channels = 1
         if self.multichannel_obs:
