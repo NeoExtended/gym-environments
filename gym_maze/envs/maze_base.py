@@ -1,4 +1,4 @@
-from typing import Tuple, Union, Type, Dict, Optional, List
+from typing import Tuple, Union, Type, Dict, Optional, List, Callable
 
 import cv2
 import gym
@@ -40,7 +40,7 @@ class MazeBase(gym.Env):
     def __init__(
         self,
         instance: Union[str, Type[InstanceGenerator]],
-        goal: Tuple[int, int],
+        goal: Union[Tuple[int, int], Callable],
         goal_range: int,
         reward_generator: str,
         reward_kwargs: dict = None,
@@ -148,15 +148,7 @@ class MazeBase(gym.Env):
 
         if goal:
             self.randomize_goal = False
-            self.goal = goal
-            self.reward_generator = self.reward_generator_class(
-                self.maze,
-                self.goal,
-                self.goal_range,
-                self.n_particles,
-                self.action_map,
-                **self.reward_kwargs
-            )
+            self.update_goal(goal)
         else:
             self.randomize_goal = True
             self.goal = [0, 0]
@@ -199,16 +191,11 @@ class MazeBase(gym.Env):
         :param locations: (list) List of possible goal locations to choose from.
         """
         if self.randomize_goal:
-            new_goal = locations[self.np_random.randint(0, len(locations))]
-            self.goal = [new_goal[1], new_goal[0]]
-            self.reward_generator = self.reward_generator_class(
-                self.maze,
-                self.goal,
-                self.goal_range,
-                self.n_particles,
-                self.action_map,
-                **self.reward_kwargs
-            )
+            if callable(self.goal_proposition):
+                new_goal = self.goal_proposition(locations)
+            else:
+                new_goal = locations[self.np_random.randint(0, len(locations))]
+            self.update_goal([new_goal[1], new_goal[0]])
 
     def _randomize_n_particles(self, locations, max_particles=4500):
         """
@@ -221,6 +208,17 @@ class MazeBase(gym.Env):
                 1, min(len(locations), max_particles)
             )
             self.reward_generator.set_particle_count(self.n_particles)
+
+    def update_goal(self, goal):
+        self.goal = goal
+        self.reward_generator = self.reward_generator_class(
+            self.maze,
+            self.goal,
+            self.goal_range,
+            self.n_particles,
+            self.action_map,
+            **self.reward_kwargs
+        )
 
     def step(self, action):
         info = {}
