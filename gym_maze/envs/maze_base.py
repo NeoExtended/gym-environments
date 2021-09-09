@@ -195,7 +195,7 @@ class MazeBase(gym.Env):
         """
         if self.randomize_goal:
             if callable(self.goal_proposition):
-                new_goal = self.goal_proposition(locations)
+                new_goal = self.goal_proposition(locations, self.goal)
             else:
                 new_goal = locations[self.np_random.randint(0, len(locations))]
             self.update_goal([new_goal[1], new_goal[0]])
@@ -213,6 +213,7 @@ class MazeBase(gym.Env):
             self.reward_generator.set_particle_count(self.n_particles)
 
     def update_goal(self, goal):
+        print(goal)
         self.goal = goal
         self.reward_generator = self.reward_generator_class(
             self.maze,
