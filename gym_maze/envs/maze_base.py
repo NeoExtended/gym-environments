@@ -213,7 +213,6 @@ class MazeBase(gym.Env):
             self.reward_generator.set_particle_count(self.n_particles)
 
     def update_goal(self, goal):
-        print(goal)
         self.goal = goal
         self.reward_generator = self.reward_generator_class(
             self.maze,
