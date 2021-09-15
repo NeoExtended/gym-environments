@@ -210,7 +210,10 @@ class MazeBase(gym.Env):
             self.n_particles = self.np_random.randint(
                 1, min(len(locations), max_particles)
             )
-            self.reward_generator.set_particle_count(self.n_particles)
+
+            # If the goal is randomized the reward generator will be replaced on each reset in the update_goal() function.
+            if not self.randomize_goal:
+                self.reward_generator.set_particle_count(self.n_particles)
 
     def update_goal(self, goal):
         self.goal = goal
