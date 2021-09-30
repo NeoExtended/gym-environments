@@ -56,12 +56,23 @@ class VecHardGoalSampleWrapper(VecEnvWrapper):
                     logging.info(np.sum(self.goal_sampled))
                     if np.sum(self.goal_sampled) == len(self.goal_locations):
                         self.all_goals_sampled = True
+                    not_visited = np.zeros(self.avg_rewards.shape)
+                    not_visited[
+                        self.goal_locations[:, 0], self.goal_locations[:, 1]
+                    ] = 1
+                    not_visited = not_visited - self.goal_sampled
+
+                    prob_positions = self.goal_sampled[
+                        self.goal_locations[:, 0], self.goal_locations[:, 1]
+                    ]
+                    probs = prob_positions / np.sum(prob_positions)
+                    self.venv.env_method("update_goal_probs", probs, indices=[i])
                 else:
                     rewards = self.avg_rewards[
                         self.goal_locations[:, 0], self.goal_locations[:, 1]
                     ]
                     probs = rewards / np.sum(rewards)
-                    self.venv.env_method("update_goal_probs", probs, i)
+                    self.venv.env_method("update_goal_probs", probs, indices=[i])
 
                 self.episode_returns[i] = 0
                 self.episode_lengths[i] = 0
