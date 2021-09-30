@@ -62,7 +62,7 @@ class VecHardGoalSampleWrapper(VecEnvWrapper):
                     ] = 1
                     not_visited = not_visited - self.goal_sampled
 
-                    prob_positions = self.goal_sampled[
+                    prob_positions = not_visited[
                         self.goal_locations[:, 0], self.goal_locations[:, 1]
                     ]
                     probs = prob_positions / np.sum(prob_positions)
