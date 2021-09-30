@@ -151,9 +151,13 @@ class MazeBase(gym.Env):
 
         if goal:
             self.randomize_goal = False
+            self.goal_probability = None
             self.update_goal(goal)
         else:
             self.randomize_goal = True
+            self.goal_probability = np.full(
+                (len(self.locations),), 1 / len(self.locations)
+            )  # Uniform distribution
             self.goal = [0, 0]
             # Random goals require a dynamic cost map which will be calculated on each reset.
 
@@ -197,6 +201,9 @@ class MazeBase(gym.Env):
             if callable(self.goal_proposition):
                 new_goal = self.goal_proposition(locations, self.goal)
             else:
+                goal_idx = self.np_random.choice(
+                    len(locations), p=self.goal_probability
+                )
                 new_goal = locations[self.np_random.randint(0, len(locations))]
             self.update_goal([new_goal[1], new_goal[0]])
 
@@ -225,6 +232,10 @@ class MazeBase(gym.Env):
             self.action_map,
             **self.reward_kwargs
         )
+
+    def update_goal_probs(self, probs: np.ndarray):
+        assert len(probs) == len(self.locations)
+        self.goal_probability = probs
 
     def step(self, action):
         info = {}
