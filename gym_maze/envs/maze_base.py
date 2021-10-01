@@ -204,7 +204,7 @@ class MazeBase(gym.Env):
                 goal_idx = self.np_random.choice(
                     len(locations), p=self.goal_probability
                 )
-                new_goal = locations[self.np_random.randint(0, len(locations))]
+                new_goal = locations[goal_idx]
             self.update_goal([new_goal[1], new_goal[0]])
 
     def _randomize_n_particles(self, locations, max_particles=4500):
