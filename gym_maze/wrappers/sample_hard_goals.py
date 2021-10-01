@@ -66,13 +66,13 @@ class VecHardGoalSampleWrapper(VecEnvWrapper):
                         self.goal_locations[:, 0], self.goal_locations[:, 1]
                     ]
                     probs = prob_positions / np.sum(prob_positions)
-                    self.venv.env_method("update_goal_probs", probs, indices=[i])
+                    self.venv.env_method("update_goal_probs", probs)
                 else:
-                    rewards = self.avg_rewards[
+                    rew_per_goal = self.avg_rewards[
                         self.goal_locations[:, 0], self.goal_locations[:, 1]
                     ]
-                    probs = rewards / np.sum(rewards)
-                    self.venv.env_method("update_goal_probs", probs, indices=[i])
+                    probs = rew_per_goal / np.sum(rew_per_goal)
+                    self.venv.env_method("update_goal_probs", probs)
 
                 self.episode_returns[i] = 0
                 self.episode_lengths[i] = 0
