@@ -10,9 +10,7 @@ from stable_baselines3.common.vec_env.base_vec_env import (
 
 
 class VecHardGoalSampleWrapper(VecEnvWrapper):
-    def __init__(
-        self, venv: VecEnv,
-    ):
+    def __init__(self, venv: VecEnv, alpha: float = 0.65):
         super(VecHardGoalSampleWrapper, self).__init__(venv)
 
         self.episode_returns = None
@@ -22,9 +20,9 @@ class VecHardGoalSampleWrapper(VecEnvWrapper):
         self.avg_rewards = np.zeros(maze.shape)
         self.goal_sampled = np.zeros(maze.shape)
         self.avg_rewards[self.goal_locations[:, 0], self.goal_locations[:, 1]] = np.inf
-        self.goal_sampled[self.goal_locations[:, 0], self.goal_locations[:, 1]] = 0
+        # self.goal_sampled[self.goal_locations[:, 0], self.goal_locations[:, 1]] = 0
 
-        self.alpha = 0.65
+        self.alpha = alpha
         self.all_goals_sampled = False
 
     def reset(self) -> VecEnvObs:
@@ -47,7 +45,7 @@ class VecHardGoalSampleWrapper(VecEnvWrapper):
                     self.avg_rewards[goal[1], goal[0]] = (
                         self.alpha * self.avg_rewards[goal[1], goal[0]]
                         + (1 - self.alpha) * episode_return
-                    ) / 2.0
+                    )
                 else:
                     self.avg_rewards[goal[1], goal[0]] = episode_return
 
@@ -71,6 +69,8 @@ class VecHardGoalSampleWrapper(VecEnvWrapper):
                     rew_per_goal = self.avg_rewards[
                         self.goal_locations[:, 0], self.goal_locations[:, 1]
                     ]
+                    rew_per_goal = rew_per_goal * -1
+                    rew_per_goal = rew_per_goal + np.min(rew_per_goal) * -1 + 0.01
                     probs = rew_per_goal / np.sum(rew_per_goal)
                     self.venv.env_method("update_goal_probs", probs)
 
