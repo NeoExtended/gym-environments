@@ -53,30 +53,37 @@ class VecHardGoalSampleWrapper(VecEnvWrapper):
                     self.goal_sampled[goal[1], goal[0]] = 1
                     logging.info(np.sum(self.goal_sampled))
                     if np.sum(self.goal_sampled) == len(self.goal_locations):
+                        logging.info("All goals have been sampled at least once.")
                         self.all_goals_sampled = True
-                    not_visited = np.zeros(self.avg_rewards.shape)
-                    not_visited[
-                        self.goal_locations[:, 0], self.goal_locations[:, 1]
-                    ] = 1
-                    not_visited = not_visited - self.goal_sampled
-
-                    prob_positions = not_visited[
-                        self.goal_locations[:, 0], self.goal_locations[:, 1]
-                    ]
-                    probs = prob_positions / np.sum(prob_positions)
-                    self.venv.env_method("update_goal_probs", probs)
+                        self.update_probs_from_reward()
+                    else:
+                        self.update_probs_from_unvisited()
                 else:
-                    rew_per_goal = self.avg_rewards[
-                        self.goal_locations[:, 0], self.goal_locations[:, 1]
-                    ]
-                    rew_per_goal = rew_per_goal * -1
-                    rew_per_goal = rew_per_goal + np.min(rew_per_goal) * -1 + 0.01
-                    probs = rew_per_goal / np.sum(rew_per_goal)
-                    self.venv.env_method("update_goal_probs", probs)
+                    self.update_probs_from_reward()
 
                 self.episode_returns[i] = 0
                 self.episode_lengths[i] = 0
         return obs, rewards, dones, new_infos
+
+    def update_probs_from_unvisited(self):
+        not_visited = np.zeros(self.avg_rewards.shape)
+        not_visited[self.goal_locations[:, 0], self.goal_locations[:, 1]] = 1
+        not_visited = not_visited - self.goal_sampled
+
+        prob_positions = not_visited[
+            self.goal_locations[:, 0], self.goal_locations[:, 1]
+        ]
+        probs = prob_positions / np.sum(prob_positions)
+        self.venv.env_method("update_goal_probs", probs)
+
+    def update_probs_from_reward(self):
+        rew_per_goal = self.avg_rewards[
+            self.goal_locations[:, 0], self.goal_locations[:, 1]
+        ]
+        rew_per_goal = rew_per_goal * -1
+        rew_per_goal = rew_per_goal + np.min(rew_per_goal) * -1 + 0.01
+        probs = rew_per_goal / np.sum(rew_per_goal)
+        self.venv.env_method("update_goal_probs", probs)
 
     def close(self) -> None:
         if self.results_writer:
