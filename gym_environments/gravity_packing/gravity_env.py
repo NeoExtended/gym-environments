@@ -1,5 +1,4 @@
-import logging
-
+import cv2
 import gym
 import numpy as np
 from gym.utils import seeding
@@ -126,6 +125,7 @@ class UnloadingEnvironment(gym.Env):
             if len(self.containers) > 0:
                 self.current = min(len(self.containers) - 1, self.current)
             else:
+                reward += 1
                 done = True
 
         return self.observation(), reward, done, {}
