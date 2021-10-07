@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 from scipy.spatial.distance import cdist
 
-from gym_maze.maze_generators.maze_generator import InstanceGenerator
+from gym_environments.gathering.maze_generators.maze_generator import InstanceGenerator
 
 
 class Node(np.ndarray):

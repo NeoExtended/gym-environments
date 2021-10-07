@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import List
 
 import pkg_resources
@@ -45,7 +46,7 @@ class InstanceReader(InstanceGenerator):
 
     def generate(self, success=True) -> np.ndarray:
         if not self._last:
-            path = pkg_resources.resource_filename("gym_maze", self.path)
+            path = pkg_resources.resource_filename("gym_environments.gathering", self.path)
             self._last = np.loadtxt(path).astype(np.uint8)
             self.height, self.width = self._last.shape
         return self._last

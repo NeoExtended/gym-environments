@@ -1,7 +1,7 @@
 import gym
 import numpy as np
 
-from gym_maze.envs.maze_base import PARTICLE_MARKER
+from gym_environments.gathering.envs.maze_base import PARTICLE_MARKER
 
 
 class InvisibleParticleNoiseWrapper(gym.ObservationWrapper):

@@ -3,7 +3,7 @@ from typing import Tuple
 
 import numpy as np
 
-from gym_maze.rewards.base_reward_generator import (
+from gym_environments.gathering.rewards.base_reward_generator import (
     RewardGenerator,
     StepInformationProvider,
 )

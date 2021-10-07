@@ -1,12 +1,14 @@
 import numpy as np
 
-from gym_maze.rewards.base_reward_generator import StepInformationProvider
-from gym_maze.rewards.episode_ends import (
+from gym_environments.gathering.rewards.base_reward_generator import (
+    StepInformationProvider,
+)
+from gym_environments.gathering.rewards.episode_ends import (
     DynamicEpisodeEnd,
     GoalReachedEpisodeEnd,
     GatheringEpisodeEnd,
 )
-from gym_maze.rewards.reward_generators import (
+from gym_environments.gathering.rewards.reward_generators import (
     ContinuousTotalCostReward,
     TimePenaltyReward,
     DiscreteTotalCostReward,

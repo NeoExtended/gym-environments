@@ -1,4 +1,4 @@
-from gym_maze.rewards.rewards import (
+from gym_environments.gathering.rewards.rewards import (
     GENERATORS,
     ContinuousRewardGenerator,
     GoalRewardGenerator,

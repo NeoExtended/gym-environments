@@ -5,9 +5,9 @@ import gym
 import numpy as np
 from gym.utils import seeding
 
-from gym_maze.maze_generators import InstanceGenerator, InstanceReader
-from gym_maze.rewards import GENERATORS
-from gym_maze.envs.step_modifier import (
+from gym_environments.gathering.maze_generators import InstanceGenerator, InstanceReader
+from gym_environments.gathering.rewards import GENERATORS
+from gym_environments.gathering.envs.step_modifier import (
     StepModifier,
     SimpleMovementModifier,
     FuzzyMovementModifier,

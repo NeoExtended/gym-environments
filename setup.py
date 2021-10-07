@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name="gym_maze",
+    name="gym_environments",
     version="1.0.0",
     author="Matthias Konitzny",
     description="Adds additional environments to the OpenAI Gym package",

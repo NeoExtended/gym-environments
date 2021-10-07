@@ -1,10 +1,13 @@
 from gym.envs.registration import register
 
-from gym_maze.maze_generators import BufferedRRTGenerator, StagesRRTGenerator
+from gym_environments.gathering.maze_generators import (
+    BufferedRRTGenerator,
+    StagesRRTGenerator,
+)
 
 register(
     id="Maze0122Discrete-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0122.csv",
@@ -16,7 +19,7 @@ register(
 
 register(
     id="Maze0122Continuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0122.csv",
@@ -28,7 +31,7 @@ register(
 
 register(
     id="Maze0122Continuous-v1",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0122.csv",
@@ -41,7 +44,7 @@ register(
 
 register(
     id="Maze0122Continuous-v2",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0122.csv",
@@ -53,7 +56,7 @@ register(
 
 register(
     id="Maze0122SmallContinuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0122_small.csv",
@@ -65,7 +68,7 @@ register(
 
 register(
     id="Maze0122TinyContinuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0122_small.csv",
@@ -77,7 +80,7 @@ register(
 
 register(
     id="Maze0318Discrete-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0318.csv",
@@ -89,7 +92,7 @@ register(
 
 register(
     id="Maze0318Continuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0318.csv",
@@ -101,7 +104,7 @@ register(
 
 register(
     id="Maze0318Continuous-v1",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0318.csv",
@@ -114,7 +117,7 @@ register(
 
 register(
     id="Maze0318Continuous-v2",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0318.csv",
@@ -126,7 +129,7 @@ register(
 
 register(
     id="Maze0318Continuous-v3",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0318.csv",
@@ -139,7 +142,7 @@ register(
 
 register(
     id="Maze0318Continuous-v4",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0318.csv",
@@ -152,7 +155,7 @@ register(
 
 register(
     id="Maze0518Discrete-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0518.csv",
@@ -164,7 +167,7 @@ register(
 
 register(
     id="Maze0518Continuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0518.csv",
@@ -176,7 +179,7 @@ register(
 
 register(
     id="Maze0518Continuous-v1",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0518.csv",
@@ -189,7 +192,7 @@ register(
 
 register(
     id="Maze0518Continuous-v2",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0518.csv",
@@ -201,7 +204,7 @@ register(
 
 register(
     id="RandomMazeContinuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": BufferedRRTGenerator,
@@ -213,7 +216,7 @@ register(
 
 register(
     id="RandomMazeDiscrete-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": BufferedRRTGenerator,
@@ -225,7 +228,7 @@ register(
 
 register(
     id="StagesMazeContinuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": StagesRRTGenerator,
@@ -237,7 +240,7 @@ register(
 
 register(
     id="PhysicalMaze0318Continuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0318.csv",
@@ -250,7 +253,7 @@ register(
 
 register(
     id="PhysicalVesselMaze02Continuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/small_vessel_2.csv",
@@ -263,7 +266,7 @@ register(
 
 register(
     id="PhysicalMaze0122Continuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/map0122.csv",
@@ -276,7 +279,7 @@ register(
 
 register(
     id="VesselMaze01Continuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/small_vessel.csv",
@@ -288,7 +291,7 @@ register(
 
 register(
     id="VesselMaze01Discrete-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/small_vessel.csv",
@@ -300,7 +303,7 @@ register(
 
 register(
     id="VesselMaze02Continuous-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/small_vessel_2.csv",
@@ -312,7 +315,7 @@ register(
 
 register(
     id="VesselMaze02Discrete-v0",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/small_vessel_2.csv",
@@ -324,7 +327,7 @@ register(
 
 register(
     id="VesselMaze02Continuous-v1",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/small_vessel_2.csv",
@@ -337,7 +340,7 @@ register(
 
 register(
     id="VesselMaze02Continuous-v2",
-    entry_point="gym_maze.envs:MazeBase",
+    entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,
     kwargs={
         "instance": "mapdata/small_vessel_2.csv",
