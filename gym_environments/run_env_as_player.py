@@ -73,6 +73,7 @@ def main(args=None):
         assert False
 
     env = make_vec_env(args.env, n_envs=1)
+    env.seed(44)
     interact(env, keymap, args.upscale, args.delay)
 
 

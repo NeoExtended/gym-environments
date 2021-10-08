@@ -21,6 +21,7 @@ class UnloadingEnvironment(gym.Env):
         self.current = 0
         self.gravity_min = 0
         self.gravity_max = 0
+        self.gravity_range = 0
         self.gravity_penalty = 0.2
 
         self.observation_space = gym.spaces.Box(
@@ -79,6 +80,7 @@ class UnloadingEnvironment(gym.Env):
         self.containers, self.container_len = [list(t) for t in zip(*order)]
 
         self.gravity_min = self.gravity_max = self.center_of_gravity()
+        self.gravity_range = 0
         return self.observation()
 
     def center_of_gravity(self):
@@ -102,6 +104,7 @@ class UnloadingEnvironment(gym.Env):
     def step(self, action):
         reward = 0
         done = False
+        info = {}
         if action == 0:
             self.current = max(0, self.current - 1)
         elif action == 1:
@@ -118,14 +121,19 @@ class UnloadingEnvironment(gym.Env):
             if cog < self.gravity_min:
                 reward -= self.gravity_penalty * (self.gravity_min - cog)
                 self.gravity_min = cog
+                self.gravity_range = self.gravity_max - self.gravity_min
             elif cog > self.gravity_max:
                 reward -= self.gravity_penalty * (cog - self.gravity_max)
                 self.gravity_max = cog
+                self.gravity_range = self.gravity_max - self.gravity_min
 
             if len(self.containers) > 0:
                 self.current = min(len(self.containers) - 1, self.current)
             else:
                 reward += 2
                 done = True
+                info["gravity_max"] = self.gravity_max
+                info["gravity_min"] = self.gravity_min
+                info["gravity_range"] = self.gravity_range
 
-        return self.observation(), reward, done, {}
+        return self.observation(), reward, done, info
