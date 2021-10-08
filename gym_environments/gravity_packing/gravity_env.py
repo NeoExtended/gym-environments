@@ -32,10 +32,10 @@ class UnloadingEnvironment(gym.Env):
         self.seed()
 
     def render(self, mode="human"):
-        image = np.zeros((3, self.space), dtype=np.uint8)
-        image[1:, :] = self.observation()
-        image[0, int(self.center_of_gravity())] = 1
-        image = image * 255
+        image = np.zeros((4, self.space), dtype=np.uint8)
+        image[1:4, :] = np.squeeze(self.observation())
+        image[0, int(self.gravity_min)] = 255
+        image[0, int(self.gravity_max)] = 255
 
         rgb_image = np.stack([image] * 3, axis=2)
         if mode == "human":  # Display image
@@ -125,7 +125,7 @@ class UnloadingEnvironment(gym.Env):
             if len(self.containers) > 0:
                 self.current = min(len(self.containers) - 1, self.current)
             else:
-                reward += 1
+                reward += 2
                 done = True
 
         return self.observation(), reward, done, {}
