@@ -349,3 +349,10 @@ register(
         "reward_generator": "continuous",
     },
 )
+
+KEYMAP = {
+    "up": 6,
+    "down": 2,
+    "left": 4,
+    "right": 0,
+}
