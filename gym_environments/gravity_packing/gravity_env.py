@@ -92,8 +92,8 @@ class UnloadingEnvironment(gym.Env):
         obs = np.zeros((4, self.space), dtype=np.uint8)
         obs[3, :] = self.cargo
         obs[1, int(self.center_of_gravity())] = 1
-        image[0, int(self.gravity_min)] = 255
-        image[0, int(self.gravity_max)] = 255
+        obs[0, int(self.gravity_min)] = 255
+        obs[0, int(self.gravity_max)] = 255
 
         if len(self.containers) > 0:
             obs[2, self.containers[self.current]] = 1
