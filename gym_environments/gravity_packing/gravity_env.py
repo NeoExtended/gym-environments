@@ -25,7 +25,7 @@ class UnloadingEnvironment(gym.Env):
         self.gravity_penalty = 0.2
 
         self.observation_space = gym.spaces.Box(
-            low=0, high=255, shape=(3, space, 1), dtype=np.uint8
+            low=0, high=255, shape=(4, space, 1), dtype=np.uint8
         )
 
         self.action_space = gym.spaces.Discrete(3)  # Left, Right, Unload
@@ -33,10 +33,7 @@ class UnloadingEnvironment(gym.Env):
         self.seed()
 
     def render(self, mode="human"):
-        image = np.zeros((4, self.space), dtype=np.uint8)
-        image[1:4, :] = np.squeeze(self.observation())
-        image[0, int(self.gravity_min)] = 255
-        image[0, int(self.gravity_max)] = 255
+        image = self.observation()
 
         rgb_image = np.stack([image] * 3, axis=2)
         if mode == "human":  # Display image
@@ -92,12 +89,14 @@ class UnloadingEnvironment(gym.Env):
             return self.space / 2
 
     def observation(self):
-        obs = np.zeros((3, self.space), dtype=np.uint8)
-        obs[2, :] = self.cargo
-        obs[0, int(self.center_of_gravity())] = 1
+        obs = np.zeros((4, self.space), dtype=np.uint8)
+        obs[3, :] = self.cargo
+        obs[1, int(self.center_of_gravity())] = 1
+        image[0, int(self.gravity_min)] = 255
+        image[0, int(self.gravity_max)] = 255
 
         if len(self.containers) > 0:
-            obs[1, self.containers[self.current]] = 1
+            obs[2, self.containers[self.current]] = 1
 
         return obs[:, :, np.newaxis] * 255
 
