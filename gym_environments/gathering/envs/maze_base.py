@@ -5,6 +5,10 @@ import gym
 import numpy as np
 from gym.utils import seeding
 
+from gym_environments.gathering.envs.observations import (
+    SingleChannelObservationGenerator,
+    MultiChannelObservationGenerator,
+)
 from gym_environments.gathering.maze_generators import InstanceGenerator, InstanceReader
 from gym_environments.gathering.rewards import GENERATORS
 from gym_environments.gathering.envs.step_modifier import (
@@ -43,22 +47,25 @@ class MazeBase(gym.Env):
         goal: Union[Tuple[int, int], Callable],
         goal_range: int,
         reward_generator: str,
-        reward_kwargs: dict = None,
+        reward_kwargs: Optional[Dict] = None,
         n_particles: int = 256,
         allow_diagonal: bool = True,
         instance_kwargs: Optional[Dict] = None,
         step_type: str = "simple",
         step_kwargs: Optional[Dict] = None,
-        multichannel_obs: bool = False,
+        observation_type: str = "simple",
+        observation_kwargs: Optional[Dict] = None,
     ) -> None:
 
         self.np_random = None
         self.reward_kwargs = {} if reward_kwargs is None else reward_kwargs
         self.instance_kwargs = {} if instance_kwargs is None else instance_kwargs
+        self.observation_kwargs = (
+            {} if observation_kwargs is None else observation_kwargs
+        )
         self.goal_range = goal_range
         self.locations = None  # Nonzero freespace - not particle locations!
         self.done = False
-        self.multichannel_obs = multichannel_obs
 
         if allow_diagonal:
             # self.action_map = {0: (1, 0), 1: (1, 1), 2: (0, 1), 3: (-1, 1), # {S, SE, E, NE, N, NW, W, SW}
@@ -111,11 +118,22 @@ class MazeBase(gym.Env):
             self._load_map(goal)
 
         self.n_channels = 1
-        if self.multichannel_obs:
-            self.n_channels = 3 if self.randomize_goal else 2
-        self.observation_space = gym.spaces.Box(
-            low=0, high=255, shape=(*self.maze.shape, self.n_channels), dtype=np.uint8
-        )
+        if observation_type == "simple":
+            self.obs_generator = SingleChannelObservationGenerator(
+                self.maze,
+                self.randomize_goal,
+                self.goal_range,
+                **self.observation_kwargs
+            )
+        else:
+            self.obs_generator = MultiChannelObservationGenerator(
+                self.maze,
+                self.randomize_goal,
+                self.goal_range,
+                **self.observation_kwargs
+            )
+        self.obs_generator.seed(self.np_random)
+        self.observation_space = self.obs_generator.observation_space
 
         self.particle_locations = np.array([])
         self.reset()
@@ -285,43 +303,10 @@ class MazeBase(gym.Env):
 
         return [seed]
 
-    def _generate_single_channel_obs(self):
-        # observation = self.maze * 255
-        observation = np.zeros(self.maze.shape)
-        observation[
-            self.particle_locations[:, 0], self.particle_locations[:, 1]
-        ] = PARTICLE_MARKER
-        if self.randomize_goal:
-            cv2.circle(observation, tuple(self.goal), self.goal_range, (GOAL_MARKER))
-            observation[
-                self.goal[1] - 1 : self.goal[1] + 1, self.goal[0] - 1 : self.goal[0] + 1
-            ] = GOAL_MARKER
-
-        return observation[:, :, np.newaxis]  # Convert to single channel image
-
-    def _generate_multi_channel_obs(self):
-        observation = np.zeros((*self.maze.shape, self.n_channels))
-        observation[:, :, 0] = self.maze * 255
-        observation[
-            self.particle_locations[:, 0], self.particle_locations[:, 1], 1
-        ] = 255
-        if self.randomize_goal:
-            circle = np.zeros(self.maze.shape)
-            cv2.circle(circle, tuple(self.goal), self.goal_range, (255))
-            observation[:, :, 2] = circle
-            observation[
-                self.goal[1] - 1 : self.goal[1] + 1,
-                self.goal[0] - 1 : self.goal[0] + 1,
-                2,
-            ] = 255
-
-        return observation  # Convert to single channel image
-
     def _generate_observation(self):
-        if self.multichannel_obs:
-            return self._generate_multi_channel_obs()
-        else:
-            return self._generate_single_channel_obs()
+        return self.obs_generator.observation(
+            self.maze, self.particle_locations, self.goal
+        )
 
     def _update_locations(self, new_locations):
         """
