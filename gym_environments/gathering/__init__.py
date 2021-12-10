@@ -252,6 +252,20 @@ register(
 )
 
 register(
+    id="RealWorldMaze0318Continuous-v0",
+    entry_point="gym_environments.gathering.envs:MazeBase",
+    max_episode_steps=2000,
+    kwargs={
+        "instance": "mapdata/map0318.csv",
+        "goal": [82, 80],
+        "goal_range": 10,
+        "reward_generator": "continuous",
+        "step_type": "physical",
+        "observation_type": "real-world",
+    },
+)
+
+register(
     id="PhysicalVesselMaze02Continuous-v0",
     entry_point="gym_environments.gathering.envs:MazeBase",
     max_episode_steps=2000,

@@ -8,6 +8,7 @@ from gym.utils import seeding
 from gym_environments.gathering.envs.observations import (
     SingleChannelObservationGenerator,
     MultiChannelObservationGenerator,
+    SingleChannelRealWorldObservationGenerator,
 )
 from gym_environments.gathering.maze_generators import InstanceGenerator, InstanceReader
 from gym_environments.gathering.rewards import GENERATORS
@@ -93,7 +94,6 @@ class MazeBase(gym.Env):
         self.action_space = gym.spaces.Discrete(len(self.action_map))
         self.step_modifiers = []  # type: List[StepModifier]
         self._create_modifiers(step_type, {} if step_kwargs is None else step_kwargs)
-        self.seed()
 
         if n_particles < 0:
             self.randomize_n_particles = True
@@ -118,6 +118,14 @@ class MazeBase(gym.Env):
             self._load_map(goal)
 
         self.n_channels = 1
+        self._create_obs_generator(observation_type)
+        self.observation_space = self.obs_generator.observation_space
+
+        self.particle_locations = np.array([])
+        self.seed()
+        self.reset()
+
+    def _create_obs_generator(self, observation_type):
         if observation_type == "simple":
             self.obs_generator = SingleChannelObservationGenerator(
                 self.maze,
@@ -125,18 +133,20 @@ class MazeBase(gym.Env):
                 self.goal_range,
                 **self.observation_kwargs
             )
-        else:
+        elif observation_type == "multichannel":
             self.obs_generator = MultiChannelObservationGenerator(
                 self.maze,
                 self.randomize_goal,
                 self.goal_range,
                 **self.observation_kwargs
             )
-        self.obs_generator.seed(self.np_random)
-        self.observation_space = self.obs_generator.observation_space
-
-        self.particle_locations = np.array([])
-        self.reset()
+        elif observation_type == "real-world":
+            self.obs_generator = SingleChannelRealWorldObservationGenerator(
+                self.maze,
+                self.randomize_goal,
+                self.goal_range,
+                **self.observation_kwargs
+            )
 
     def _create_modifiers(self, step_type, step_kwargs):
         if step_type == "simple":
@@ -195,6 +205,9 @@ class MazeBase(gym.Env):
         # Reset modifiers
         for modifier in self.step_modifiers:
             modifier.reset(self.particle_locations, self.maze, self.freespace)
+
+        # Reset observation generator
+        self.obs_generator.reset()
 
         self.done = False
         return self._generate_observation()
@@ -301,6 +314,8 @@ class MazeBase(gym.Env):
         for modifier in self.step_modifiers:
             modifier.seed(self.np_random)
 
+        if self.obs_generator is not None:
+            self.obs_generator.seed(self.np_random)
         return [seed]
 
     def _generate_observation(self):
