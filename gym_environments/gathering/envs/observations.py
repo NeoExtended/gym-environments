@@ -95,13 +95,18 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         noise: float = 0.0,
         real_world_fac: float = 2,
         max_displacement: int = 5,
+        max_crop: int = 5,
     ):
         super(SingleChannelRealWorldObservationGenerator, self).__init__(
             maze, random_goal, goal_range, noise
         )
         self.real_world_fac = real_world_fac
         self.real_world_size = tuple([int(d * self.real_world_fac) for d in maze.shape])
+        self.displacement = (0, 0)
+        self.crop = (0, 0, 0, 0)
+        self.dirt = np.ndarray([])
         self.max_displacement = max_displacement
+        self.max_crop = max_crop
         self.observation_space = gym.spaces.Box(
             low=0, high=255, shape=(*maze.shape, 1), dtype=np.uint8
         )
@@ -126,15 +131,23 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
             observation, self.real_world_size, interpolation=cv2.INTER_AREA
         )
 
+        # Add stationary dirt
+        observation = np.clip(observation + self.dirt, 0, 255)
+
         # Threshold
         ret, particles = cv2.threshold(observation, 200, 255, cv2.THRESH_BINARY)
+
+        # Random Crop
+        y, x = particles.shape
+        trim_left, trim_right, trim_top, trim_bot = self.crop
+        particles = particles[trim_top : y - trim_bot, trim_left : x - trim_right]
 
         # Translate
         particles = self.shift(particles, self.displacement[0], self.displacement[1],)
 
         # Add Noise
         noisy = self.generate_noise(particles, noise_type="s&p")
-        noisy = self.generate_noise(particles, noise_type="gauss")
+        noisy = self.generate_noise(noisy, noise_type="gauss")
 
         # Downscale
         downscaled = cv2.resize(noisy, output_shape, interpolation=cv2.INTER_AREA)
@@ -163,6 +176,12 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         self.displacement = (
             self.np_random.randint(-self.max_displacement, self.max_displacement),
             self.np_random.randint(-self.max_displacement, self.max_displacement),
+        )
+
+        self.crop = [self.np_random.randint(0, self.max_crop) for _ in range(4)]
+
+        self.dirt = self.generate_noise(
+            np.zeros(self.real_world_size), noise_type="s&p"
         )
 
 
