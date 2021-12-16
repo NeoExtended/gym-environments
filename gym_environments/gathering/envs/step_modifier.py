@@ -92,15 +92,18 @@ class PhysicalMovementModifier(StepModifier):
     def __init__(
         self,
         action_map: Dict[int, Tuple[int, int]],
-        fuzzy_action_probability: float = 0.1,
+        random_weights: bool = True,
+        force: float = 0.05,
+        drag: float = 1.025,
         **kwargs
     ):
         super(PhysicalMovementModifier, self).__init__(action_map, **kwargs)
 
-        self.random_particle_weights = False
+        self.random_particle_weights = random_weights
         self.particle_speed = None
         self.exact_locations = None
-        self.force = 0.25
+        self.force = force
+        self.drag = drag
         self.acceleration = None
 
     def reset(self, locations: np.ndarray, maze: np.ndarray, freespace: np.ndarray):
@@ -134,7 +137,7 @@ class PhysicalMovementModifier(StepModifier):
             self.exact_locations + self.particle_speed,
             self.exact_locations,
         )
-        self.particle_speed = self.particle_speed / 1.1  # drag
+        self.particle_speed = self.particle_speed / self.drag
         self.particle_speed = np.where(
             valid_locations, self.particle_speed, self.particle_speed / 2
         )  # collision
