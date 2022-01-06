@@ -93,6 +93,7 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         random_goal: bool,
         goal_range: int,
         noise: float = 0.0,
+        dirt_noise: float = 0.0,
         real_world_fac: float = 2,
         max_displacement: int = 5,
         max_crop: int = 5,
@@ -107,6 +108,7 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         self.dirt = np.ndarray([])
         self.max_displacement = max_displacement
         self.max_crop = max_crop
+        self.dirt_noise = dirt_noise
         self.observation_space = gym.spaces.Box(
             low=0, high=255, shape=(*maze.shape, 1), dtype=np.uint8
         )
@@ -153,7 +155,7 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
         downscaled = cv2.resize(noisy, output_shape, interpolation=cv2.INTER_AREA)
 
         # Threshold
-        ret, out = cv2.threshold(downscaled, 100, 255, cv2.THRESH_BINARY)
+        ret, out = cv2.threshold(downscaled, 80, 255, cv2.THRESH_BINARY)
 
         # Restrict noise to maze area + 2 pixels
         kernel = np.ones((5, 5), np.uint8)
@@ -180,8 +182,8 @@ class SingleChannelRealWorldObservationGenerator(ObservationGenerator):
 
         self.crop = [self.np_random.randint(0, self.max_crop) for _ in range(4)]
 
-        self.dirt = self.generate_noise(
-            np.zeros(self.real_world_size), noise_type="s&p"
+        self.dirt = self.salt_and_pepper_noise(
+            np.zeros(self.real_world_size), self.dirt_noise
         )
 
 
