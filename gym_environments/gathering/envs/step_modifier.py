@@ -95,6 +95,9 @@ class PhysicalMovementModifier(StepModifier):
         random_weights: bool = True,
         force: float = 0.05,
         drag: float = 1.025,
+        particle_self_collision: bool = False,
+        max_particles_per_cell: int = 3,
+        collision_range: int = 3,
         **kwargs
     ):
         super(PhysicalMovementModifier, self).__init__(action_map, **kwargs)
@@ -105,6 +108,11 @@ class PhysicalMovementModifier(StepModifier):
         self.force = force
         self.drag = drag
         self.acceleration = None
+
+        self.max_particles_per_cell = max_particles_per_cell
+        self.use_self_collision = particle_self_collision
+        self.collisions = np.ndarray([])
+        self.collision_range = collision_range
 
     def reset(self, locations: np.ndarray, maze: np.ndarray, freespace: np.ndarray):
         super(PhysicalMovementModifier, self).reset(locations, maze, freespace)
@@ -129,9 +137,56 @@ class PhysicalMovementModifier(StepModifier):
             np.stack([dy * self.acceleration, dx * self.acceleration], axis=1)
         )
         rounded_update = np.rint(self.particle_speed).astype(int)
+
+        if self.use_self_collision:
+            valid_locations = self.self_collision(locations)
+            rounded_update = np.where(
+                valid_locations, rounded_update, np.zeros_like(rounded_update)
+            )
+
         return rounded_update
 
+    def check_collision(self, free: np.ndarray, locations: np.ndarray):
+        valid_locations = free.ravel()[
+            (locations[:, 1] + locations[:, 0] * free.shape[1])
+        ]
+        return valid_locations[:, np.newaxis]
+
+    def self_collision(self, locations: np.ndarray):
+        # Calculate normed particle direction vectors
+        directions = (
+            self.particle_speed
+            / np.linalg.norm(self.particle_speed, axis=1)[:, np.newaxis]
+        )
+
+        # Calculate maze positions that are blocked by walls or other particles
+        unique, counts = np.unique(locations, return_counts=True, axis=0)
+        current_distribution = np.copy(self.maze) * self.max_particles_per_cell
+        current_distribution[unique[:, 0], unique[:, 1]] = counts
+        current_distribution[current_distribution < self.max_particles_per_cell] = 1
+        current_distribution[current_distribution >= self.max_particles_per_cell] = 0
+
+        # Calculate collisions. Future collisions may depend on the future movement of other particles.
+        # Calculate self.collision_range steps ahead
+        collisions = [
+            self.check_collision(
+                current_distribution, locations + np.rint(directions * i).astype(int)
+            )
+            for i in range(1, self.collision_range)
+        ]
+
+        self.collisions = np.max(np.concatenate(collisions, axis=1), axis=1,)[
+            :, np.newaxis
+        ]
+        return self.collisions
+
     def step_done(self, valid_locations):
+        if self.use_self_collision:
+
+            valid_locations = np.min(
+                np.concatenate([valid_locations, self.collisions], axis=1), axis=1
+            )[:, np.newaxis]
+
         self.exact_locations = np.where(
             valid_locations,
             self.exact_locations + self.particle_speed,
